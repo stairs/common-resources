@@ -1,0 +1,3 @@
+[submodule "ui-native-common"]
+	path = ui-native-common
+	url = https://github.com/turvo/ui-native-common.git

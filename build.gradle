@@ -1,0 +1,63 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+    }
+}
+
+apply plugin: 'com.android.library'
+
+def getVersionCode = { ->
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            workingDir './ui-native-common'
+            commandLine 'git', 'rev-list', '--first-parent', '--count', 'HEAD'
+            standardOutput = stdout
+        }
+        return Integer.parseInt(stdout.toString().trim())
+    }
+    catch (ignored) {
+        return -1
+    }
+}
+
+android {
+    compileSdkVersion 26
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 26
+        versionCode getVersionCode()
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    libraryVariants.all { variant ->
+        variant.javaCompiler.dependsOn(twine)
+
+        variant.outputs.all { output ->
+            if (outputFile != null && outputFileName.endsWith('.aar')) {
+                outputFileName = "${archivesBaseName}-0.${getVersionCode}.aar"
+            }
+        }
+    }
+}
+
+task twine(type: Exec) {
+    commandLine "twine", "generate-all-localization-files", "./ui-native-common/strings/twine.txt", "src/main/res", "--format", "android", "--tags", "common"
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
