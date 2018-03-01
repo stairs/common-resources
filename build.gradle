@@ -44,7 +44,8 @@ android {
     }
 
     libraryVariants.all { variant ->
-        variant.javaCompiler.dependsOn(twine)
+        variant.javaCompiler.dependsOn(i18n)
+        variant.javaCompiler.dependsOn(configs)
 
         variant.outputs.all { output ->
             if (outputFile != null && outputFileName.endsWith('.aar')) {
@@ -54,8 +55,13 @@ android {
     }
 }
 
-task twine(type: Exec) {
+task i18n(type: Exec) {
     commandLine "twine", "generate-all-localization-files", "./ui-native-common/strings/twine.txt", "src/main/res", "--format", "android", "--tags", "common"
+}
+
+task configs (type: Copy) {
+    from "ui-native-common/config"
+    into "src/main/res/raw"
 }
 
 dependencies {
