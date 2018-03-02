@@ -46,6 +46,7 @@ android {
     libraryVariants.all { variant ->
         variant.javaCompiler.dependsOn(i18n)
         variant.javaCompiler.dependsOn(configs)
+        variant.javaCompiler.dependsOn(images)
 
         variant.outputs.all { output ->
             if (outputFile != null && outputFileName.endsWith('.aar')) {
@@ -56,12 +57,22 @@ android {
 }
 
 task i18n(type: Exec) {
-    commandLine "twine", "generate-all-localization-files", "./ui-native-common/strings/twine.txt", "src/main/res", "--format", "android", "--tags", "common"
+    commandLine "/usr/local/bin/twine", "generate-all-localization-files", "ui-native-common/strings/twine.txt", "src/main/res", "--format", "android", "--tags", "common"
 }
 
-task configs (type: Copy) {
+task configs(type: Copy) {
     from "ui-native-common/config"
     into "src/main/res/raw"
+}
+
+task gulp(type: Exec) {
+    workingDir "./ui-native-common"
+    commandLine "/usr/local/bin/gulp", "images", "--platform=android"
+}
+
+task images(dependsOn: gulp, type: Copy) {
+    from "ui-native-common/assets/tmp/android/res"
+    into "src/main/res"
 }
 
 dependencies {
