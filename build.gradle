@@ -1,13 +1,21 @@
 buildscript {
     repositories {
-        mavenCentral()
         google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.android.tools.build:gradle:3.2.1'
     }
 }
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
+    }
+}
+
 
 apply plugin: 'com.android.library'
 
@@ -27,11 +35,11 @@ def getVersionCode = { ->
 }
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode getVersionCode()
         versionName "1.0"
     }
@@ -71,8 +79,14 @@ task gulp(type: Exec) {
 }
 
 task images(dependsOn: gulp, type: Copy) {
+    doFirst {
+        delete "${rootDir}/ui-native-common/assets/tmp/android/res/drawable/iOS"
+    }
     from "ui-native-common/assets/tmp/android/res"
     into "src/main/res"
+    doLast {
+        delete "${rootDir}/ui-native-common/assets/tmp"
+    }
 }
 
 preBuild.dependsOn i18n
